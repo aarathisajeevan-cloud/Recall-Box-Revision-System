@@ -1,8 +1,11 @@
+
 import customtkinter as ctk
 from tkinter import messagebox
-
-from django.core.serializers import python
 from api_client import start_revision_session
+from my_subjects_ui import show_my_subjects
+
+
+# ---------------- REVISION FUNCTIONS ----------------
 
 def handle_start_revision():
 
@@ -25,6 +28,8 @@ def handle_start_revision():
             "Success",
             f"Revision session started!\nSession ID: {session_id}"
         )
+
+
 # ---------------- CONFIGURATION ----------------
 
 ctk.set_appearance_mode("light")
@@ -34,6 +39,7 @@ app = ctk.CTk()
 app.title("RecallBox | Smart Revision System")
 app.geometry("1200x750")
 app.minsize(1000, 650)
+
 
 # Colours
 BG = "#F7F7FC"
@@ -46,6 +52,7 @@ WHITE = "#FFFFFF"
 
 app.configure(fg_color=BG)
 
+
 # ---------------- SIDEBAR ----------------
 
 sidebar = ctk.CTkFrame(
@@ -54,8 +61,10 @@ sidebar = ctk.CTkFrame(
     corner_radius=0,
     fg_color=SIDEBAR
 )
+
 sidebar.pack(side="left", fill="y")
 sidebar.pack_propagate(False)
+
 
 logo = ctk.CTkLabel(
     sidebar,
@@ -63,7 +72,9 @@ logo = ctk.CTkLabel(
     font=("Arial", 25, "bold"),
     text_color=PURPLE
 )
+
 logo.pack(pady=(35, 45))
+
 
 menu_items = [
     "Dashboard",
@@ -73,6 +84,11 @@ menu_items = [
     "Revision History",
     "Analytics"
 ]
+
+
+# Store sidebar buttons
+sidebar_buttons = {}
+
 
 for item in menu_items:
 
@@ -90,7 +106,11 @@ for item in menu_items:
         font=("Arial", 14, "bold" if active else "normal"),
         command=lambda name=item: show_page(name)
     )
+
     button.pack(fill="x", padx=18, pady=5)
+
+    sidebar_buttons[item] = button
+
 
 # ---------------- MAIN CONTENT ----------------
 
@@ -99,46 +119,102 @@ main = ctk.CTkFrame(
     fg_color=BG,
     corner_radius=0
 )
-main.pack(side="left", fill="both", expand=True, padx=30, pady=25)
+
+main.pack(
+    side="left",
+    fill="both",
+    expand=True,
+    padx=30,
+    pady=25
+)
 
 
 def clear_main():
+
     for widget in main.winfo_children():
         widget.destroy()
 
 
+# ---------------- SIDEBAR NAVIGATION ----------------
+
+def update_sidebar(selected_page):
+
+    for item, button in sidebar_buttons.items():
+
+        if item == selected_page:
+
+            button.configure(
+                fg_color=LIGHT_PURPLE,
+                text_color=PURPLE,
+                font=("Arial", 14, "bold")
+            )
+
+        else:
+
+            button.configure(
+                fg_color=SIDEBAR,
+                text_color=MUTED,
+                font=("Arial", 14, "normal")
+            )
+
+
+# ---------------- PAGE NAVIGATION ----------------
+
 def show_page(page_name):
+
+    # Update selected sidebar button
+    update_sidebar(page_name)
 
     clear_main()
 
-    heading = ctk.CTkLabel(
-        main,
-        text=page_name,
-        font=("Arial", 30, "bold"),
-        text_color=TEXT
-    )
-    heading.pack(anchor="w", pady=(15, 5))
+    if page_name == "My Subjects":
 
-    subtitle = ctk.CTkLabel(
-        main,
-        text="Manage your learning and improve your memory.",
-        font=("Arial", 14),
-        text_color=MUTED
-    )
-    subtitle.pack(anchor="w", pady=(0, 25))
+        show_my_subjects(main)
 
-    if page_name == "Start Revision":
+    elif page_name == "Start Revision":
+
+        heading = ctk.CTkLabel(
+            main,
+            text=page_name,
+            font=("Arial", 30, "bold"),
+            text_color=TEXT
+        )
+
+        heading.pack(anchor="w", pady=(15, 5))
+
+        subtitle = ctk.CTkLabel(
+            main,
+            text="Manage your learning and improve your memory.",
+            font=("Arial", 14),
+            text_color=MUTED
+        )
+
+        subtitle.pack(anchor="w", pady=(0, 25))
+
         show_revision_home()
 
     else:
+
+        heading = ctk.CTkLabel(
+            main,
+            text=page_name,
+            font=("Arial", 30, "bold"),
+            text_color=TEXT
+        )
+
+        heading.pack(anchor="w", pady=(15, 5))
+
         placeholder = ctk.CTkLabel(
             main,
             text=f"{page_name} page coming soon!",
             font=("Arial", 18),
             text_color=MUTED
         )
+
         placeholder.pack(pady=100)
 
+
+# ---------------- START REVISION HOME ----------------
 
 def show_revision_home():
 
@@ -149,6 +225,7 @@ def show_revision_home():
         corner_radius=18,
         height=180
     )
+
     welcome.pack(fill="x", pady=(0, 25))
     welcome.pack_propagate(False)
 
@@ -181,6 +258,7 @@ def show_revision_home():
         main,
         fg_color="transparent"
     )
+
     stats.pack(fill="x", pady=5)
 
     cards = [
@@ -197,12 +275,14 @@ def show_revision_home():
             corner_radius=15,
             height=125
         )
+
         card.pack(
             side="left",
             fill="both",
             expand=True,
             padx=7
         )
+
         card.pack_propagate(False)
 
         ctk.CTkLabel(
@@ -232,25 +312,3 @@ def show_revision_home():
 show_page("Start Revision")
 
 app.mainloop()
-
-def handle_start_revision():
-
-    # Temporary test IDs
-    user_id = 1
-    topic_id = 1
-
-    result = start_revision_session(user_id, topic_id)
-
-    if "error" in result:
-        messagebox.showerror(
-            "Error",
-            str(result["error"])
-        )
-
-    else:
-        session_id = result["session"]["session_id"]
-
-        messagebox.showinfo(
-            "Success",
-            f"Revision session started!\nSession ID: {session_id}"
-        )

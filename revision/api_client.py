@@ -28,3 +28,28 @@ def start_revision_session(user_id, topic_id):
         return {
             "error": str(error)
         }
+
+def save_questions(questions):
+    url = BASE_URL + "save-questions/"
+
+    data = {
+        "questions": questions
+    }
+
+    try:
+        response = requests.post(
+            url,
+            json=data,
+            timeout=10
+        )
+
+        if response.status_code == 201:
+            return response.json()
+
+        try:
+            return {"error": response.json()}
+        except ValueError:
+            return {"error": response.text}
+
+    except requests.RequestException as error:
+        return {"error": str(error)}

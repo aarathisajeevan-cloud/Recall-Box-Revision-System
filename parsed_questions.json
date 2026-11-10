@@ -1,0 +1,122 @@
+[
+    {
+        "question_number": 1,
+        "question_text": "Which Python keyword is used to define a function?",
+        "options": {
+            "A": "class",
+            "B": "def",
+            "C": "return",
+            "D": "import"
+        },
+        "correct_answer": "B. def",
+        "explanation": "The def keyword begins a function definition in Python."
+    },
+    {
+        "question_number": 2,
+        "question_text": "Which data structure follows the FIFO principle?",
+        "options": {
+            "A": "Stack",
+            "B": "Tree",
+            "C": "Queue",
+            "D": "Graph"
+        },
+        "correct_answer": "C. Queue",
+        "explanation": "FIFO means First In, First Out. The first item inserted is the first item removed."
+    },
+    {
+        "question_number": 3,
+        "question_text": "What is the output of print(3 * 4)?",
+        "options": {
+            "A": "7",
+            "B": "12",
+            "C": "34",
+            "D": "0"
+        },
+        "correct_answer": "B. 12",
+        "explanation": "The multiplication operator (*) multiplies 3 by 4."
+    },
+    {
+        "question_number": 4,
+        "question_text": "Which SQL command is used to retrieve records from a table?",
+        "options": {
+            "A": "INSERT",
+            "B": "UPDATE",
+            "C": "DELETE",
+            "D": "SELECT"
+        },
+        "correct_answer": "D. SELECT",
+        "explanation": "SELECT retrieves data from one or more database tables."
+    },
+    {
+        "question_number": 5,
+        "question_text": "Which OOP concept allows a class to acquire properties and methods of another class?",
+        "options": {
+            "A": "Encapsulation",
+            "B": "Inheritance",
+            "C": "Polymorphism",
+            "D": "Abstraction"
+        },
+        "correct_answer": "B. Inheritance",
+        "explanation": "Inheritance allows a new class to reuse or extend features of an existing class."
+    },
+    {
+        "question_number": 6,
+        "question_text": "Which symbol is used for single-line comments in Python?",
+        "options": {
+            "A": "//",
+            "B": "",
+            "C": "#",
+            "D": "**"
+        },
+        "correct_answer": "C. #",
+        "explanation": "A hash symbol (#) starts a single-line comment in Python."
+    },
+    {
+        "question_number": 7,
+        "question_text": "Which method adds an item to the end of a Python list?",
+        "options": {
+            "A": "add()",
+            "B": "append()",
+            "C": "insertEnd()",
+            "D": "push()"
+        },
+        "correct_answer": "B. append()",
+        "explanation": "The append() method adds one item to the end of a list."
+    },
+    {
+        "question_number": 8,
+        "question_text": "Which of the following is a valid Boolean value in Python?",
+        "options": {
+            "A": "TRUE",
+            "B": "false",
+            "C": "True",
+            "D": "yes"
+        },
+        "correct_answer": "C. True",
+        "explanation": "Python Boolean literals are True and False, with initial capital letters."
+    },
+    {
+        "question_number": 9,
+        "question_text": "Which SQL clause is used to filter rows based on a condition?",
+        "options": {
+            "A": "ORDER BY",
+            "B": "WHERE",
+            "C": "GROUP BY",
+            "D": "JOIN"
+        },
+        "correct_answer": "B. WHERE",
+        "explanation": "WHERE filters records that satisfy a specified condition."
+    },
+    {
+        "question_number": 10,
+        "question_text": "What is the result of len('RecallBox')?",
+        "options": {
+            "A": "8",
+            "B": "9",
+            "C": "10",
+            "D": "7"
+        },
+        "correct_answer": "B. 9",
+        "explanation": "The string RecallBox contains nine characters."
+    }
+]
