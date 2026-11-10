@@ -1,0 +1,82 @@
+
+--- Page 1 ---
+RecallBox – Dummy Question Bank
+Practice PDF for testing question, option, answer and explanation extraction
+Subject: Python Programming     Level: Beginner
+Instructions: Each question is followed by four options, the correct answer, and a short explanation. This is a
+sample text-based PDF.
+Question 1: Which Python keyword is used to define a function?
+A. class
+B. def
+C. return
+D. import
+Answer: B. def
+Explanation: The def keyword begins a function definition in Python.
+Question 2: Which data structure follows the FIFO principle?
+A. Stack
+B. Tree
+C. Queue
+D. Graph
+Answer: C. Queue
+Explanation: FIFO means First In, First Out. The first item inserted is the first item removed.
+Question 3: What is the output of print(3 * 4)?
+A. 7
+B. 12
+C. 34
+D. 0
+Answer: B. 12
+Explanation: The multiplication operator (*) multiplies 3 by 4.
+Question 4: Which SQL command is used to retrieve records from a table?
+A. INSERT
+B. UPDATE
+C. DELETE
+D. SELECT
+Answer: D. SELECT
+Explanation: SELECT retrieves data from one or more database tables.
+
+--- Page 2 ---
+Question 5: Which OOP concept allows a class to acquire properties and methods of another
+class?
+A. Encapsulation
+B. Inheritance
+C. Polymorphism
+D. Abstraction
+Answer: B. Inheritance
+Explanation: Inheritance allows a new class to reuse or extend features of an existing class.
+Question 6: Which symbol is used for single-line comments in Python?
+A. //
+B.
+C. #
+D. **
+Answer: C. #
+Explanation: A hash symbol (#) starts a single-line comment in Python.
+Question 7: Which method adds an item to the end of a Python list?
+A. add()
+B. append()
+C. insertEnd()
+D. push()
+Answer: B. append()
+Explanation: The append() method adds one item to the end of a list.
+Question 8: Which of the following is a valid Boolean value in Python?
+A. TRUE
+B. false
+C. True
+D. yes
+Answer: C. True
+Explanation: Python Boolean literals are True and False, with initial capital letters.
+Question 9: Which SQL clause is used to filter rows based on a condition?
+A. ORDER BY
+B. WHERE
+C. GROUP BY
+D. JOIN
+Answer: B. WHERE
+Explanation: WHERE filters records that satisfy a specified condition.
+
+--- Page 3 ---
+Question 10: What is the result of len('RecallBox')?
+A. 8
+B. 9
+C. 10
+D. 7
+Answer: B. 9
+Explanation: The string RecallBox contains nine characters.
