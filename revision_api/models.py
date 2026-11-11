@@ -92,3 +92,35 @@ class Question(models.Model):
 
     def __str__(self):
         return self.question_text[:50]
+
+
+class AnswerAttempt(models.Model):
+
+    attempt_id = models.AutoField(primary_key=True)
+
+    user_id = models.IntegerField()
+
+    session = models.ForeignKey(
+        RevisionSession,
+        on_delete=models.CASCADE,
+        related_name='answer_attempts'
+    )
+
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name='answer_attempts'
+    )
+
+    selected_answer = models.TextField()
+
+    is_correct = models.BooleanField()
+
+    time_taken = models.FloatField(
+        help_text="Time taken to answer in seconds"
+    )
+
+    attempted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"User {self.user_id} - Question {self.question_id}"

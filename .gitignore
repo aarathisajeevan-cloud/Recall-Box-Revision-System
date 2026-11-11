@@ -1,0 +1,37 @@
+# Python Virtual Environment
+
+
+
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Django Database
+db.sqlite3
+db.sqlite3-journal
+
+# Environment Variables and Secrets
+.env
+.env.*
+
+# IDE Settings
+.idea/
+
+# Log Files
+*.log
+
+# Temporary Testing Files
+parsed_questions.json
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.bak

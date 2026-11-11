@@ -1,8 +1,10 @@
 
 import customtkinter as ctk
 from tkinter import messagebox
-from api_client import start_revision_session
+from api_client import start_revision_session, get_questions,save_answer_attempt
 from my_subjects_ui import show_my_subjects
+import time
+
 
 
 # ---------------- REVISION FUNCTIONS ----------------
@@ -29,6 +31,349 @@ def handle_start_revision():
             f"Revision session started!\nSession ID: {session_id}"
         )
 
+# revsion mode popup
+
+def show_revision_mode_popup():
+
+    popup = ctk.CTkToplevel(app)
+    popup.title("Choose Revision Mode")
+    popup.geometry("400x350")
+    popup.resizable(False, False)
+    popup.grab_set()
+
+    ctk.CTkLabel(
+        popup,
+        text="Choose Your Revision Mode",
+        font=("Arial", 22, "bold"),
+        text_color=TEXT
+    ).pack(pady=(25, 10))
+
+    ctk.CTkLabel(
+        popup,
+        text="How would you like to revise today?",
+        font=("Arial", 13),
+        text_color=MUTED
+    ).pack(pady=5)
+
+    ctk.CTkButton(
+        popup,
+        text="Smart Revision",
+        height=45,
+        fg_color=PURPLE,
+        command=lambda: select_revision_mode("SCHEDULED", popup)
+    ).pack(fill="x", padx=35, pady=10)
+
+    ctk.CTkButton(
+        popup,
+        text="Topic Practice",
+        height=45,
+        fg_color=PURPLE,
+        command=lambda: select_revision_mode("TOPIC_PRACTICE", popup)
+    ).pack(fill="x", padx=35, pady=10)
+
+    ctk.CTkButton(
+        popup,
+        text="Mixed Revision",
+        height=45,
+        fg_color=PURPLE,
+        command=lambda: select_revision_mode("MIXED", popup)
+    ).pack(fill="x", padx=35, pady=10)
+
+#select revision mode
+
+def select_revision_mode(mode, popup):
+
+    popup.destroy()
+
+    # Temporary test IDs
+    user_id = 1
+    topic_id = 1
+
+    # Create revision session
+    result = start_revision_session(
+        user_id,
+        topic_id,
+        mode
+    )
+
+    if "error" in result:
+        messagebox.showerror(
+            "Error",
+            str(result["error"])
+        )
+        return
+
+    session_id = result["session"]["session_id"]
+
+    # Retrieve questions
+    question_result = get_questions(topic_id)
+
+    if "error" in question_result:
+        messagebox.showerror(
+            "Error",
+            str(question_result["error"])
+        )
+        return
+
+    questions = question_result.get("questions", [])
+
+    if not questions:
+        messagebox.showinfo(
+            "No Questions",
+            "No questions available for this topic."
+        )
+        return
+
+    # Open question screen
+    show_question_screen(
+        questions,
+        session_id,
+        mode
+    )
+
+# Fetch questions and show question screen
+def show_question_screen(questions, session_id, mode):
+
+    if not questions:
+        messagebox.showinfo(
+            "No Questions",
+            "No questions are available for this revision."
+        )
+        show_page("Start Revision")
+        return
+
+    current_index = 0
+    score = 0
+    total_questions = len(questions)
+
+    question_start_time = time.time()
+    user_id = 1  # Temporary test user ID
+
+    selected_answer = ctk.StringVar(value="")
+
+    def clear_main():
+        for widget in main.winfo_children():
+            widget.destroy()
+
+    # DISPLAY QUESTION
+    def display_question():
+
+        nonlocal question_start_time
+
+        clear_main()
+
+        question = questions[current_index]
+
+        selected_answer.set("")
+        question_start_time = time.time()
+
+        ctk.CTkLabel(
+            main,
+            text=mode.replace('_', ' ').title(),
+            font=("Arial", 16, "bold"),
+            text_color=PURPLE
+        ).pack(pady=(20, 5))
+
+        ctk.CTkLabel(
+            main,
+            text=f"Question {current_index + 1} of {total_questions}",
+            font=("Arial", 20, "bold"),
+            text_color=TEXT
+        ).pack(pady=15)
+
+        ctk.CTkLabel(
+            main,
+            text=question["question_text"],
+            font=("Arial", 18),
+            text_color=TEXT,
+            wraplength=750
+        ).pack(pady=20)
+
+        options = question.get("options_json") or {}
+
+        for letter, option_text in options.items():
+
+            ctk.CTkRadioButton(
+                main,
+                text=f"{letter}. {option_text}",
+                variable=selected_answer,
+                value=letter,
+                font=("Arial", 15),
+                text_color=TEXT
+            ).pack(anchor="w", padx=100, pady=10)
+
+        ctk.CTkButton(
+            main,
+            text="Submit Answer",
+            fg_color=PURPLE,
+            hover_color="#5745C5",
+            height=40,
+            command=submit_answer
+        ).pack(pady=25)
+
+    # SUBMIT ANSWER
+    def submit_answer():
+
+        nonlocal score
+
+        answer = selected_answer.get()
+
+        if not answer:
+            messagebox.showwarning(
+                "Select Answer",
+                "Please select an answer first."
+            )
+            return
+
+        question = questions[current_index]
+
+        time_taken = round(
+            time.time() - question_start_time, 2
+        )
+
+        # Save answer through Django
+        result = save_answer_attempt(
+            user_id,
+            session_id,
+            question["question_id"],
+            answer,
+            time_taken
+        )
+
+        # Handle API errors
+        if "error" in result:
+            messagebox.showerror(
+                "Save Error",
+                f"Could not save your answer:\n{result['error']}"
+            )
+            return
+
+        # Get correctness from Django
+        is_correct = result["is_correct"]
+
+        if is_correct:
+            score += 1
+            feedback = "Correct Answer!"
+            feedback_color = "#2EAD63"
+
+        else:
+            feedback = "Incorrect Answer!"
+            feedback_color = "#E5484D"
+
+        correct_answer = question["correct_answer"].strip()
+
+        clear_main()
+
+        # Feedback
+        ctk.CTkLabel(
+            main,
+            text=feedback,
+            font=("Arial", 24, "bold"),
+            text_color=feedback_color
+        ).pack(pady=25)
+
+        # Correct answer
+        ctk.CTkLabel(
+            main,
+            text=f"Correct Answer: {correct_answer}",
+            font=("Arial", 16, "bold"),
+            text_color=TEXT
+        ).pack(pady=10)
+
+        # Explanation
+        ctk.CTkLabel(
+            main,
+            text=question.get("explanation") or
+                 "No explanation available.",
+            font=("Arial", 15),
+            text_color=TEXT,
+            wraplength=750
+        ).pack(pady=20)
+
+        # Next question
+        ctk.CTkButton(
+            main,
+            text="Next Question",
+            fg_color=PURPLE,
+            hover_color="#5745C5",
+            height=40,
+            command=next_question
+        ).pack(pady=25)
+
+    # NEXT QUESTION
+    def next_question():
+
+        nonlocal current_index
+
+        current_index += 1
+
+        if current_index < total_questions:
+            display_question()
+
+        else:
+            show_revision_result()
+
+    # FINAL RESULT
+    def show_revision_result():
+
+        clear_main()
+
+        accuracy = (score / total_questions) * 100
+
+        ctk.CTkLabel(
+            main,
+            text="Revision Completed!",
+            font=("Arial", 28, "bold"),
+            text_color=PURPLE
+        ).pack(pady=30)
+
+        ctk.CTkLabel(
+            main,
+            text=f"Session ID: {session_id}",
+            font=("Arial", 15),
+            text_color=MUTED
+        ).pack(pady=10)
+
+        ctk.CTkLabel(
+            main,
+            text=f"Total Questions: {total_questions}",
+            font=("Arial", 18),
+            text_color=TEXT
+        ).pack(pady=10)
+
+        ctk.CTkLabel(
+            main,
+            text=f"Correct Answers: {score}",
+            font=("Arial", 18, "bold"),
+            text_color="#2EAD63"
+        ).pack(pady=10)
+
+        ctk.CTkLabel(
+            main,
+            text=f"Incorrect Answers: {total_questions - score}",
+            font=("Arial", 18, "bold"),
+            text_color="#E5484D"
+        ).pack(pady=10)
+
+        ctk.CTkLabel(
+            main,
+            text=f"Accuracy: {accuracy:.1f}%",
+            font=("Arial", 22, "bold"),
+            text_color=PURPLE
+        ).pack(pady=20)
+
+        # Back to Home
+        ctk.CTkButton(
+            main,
+            text="Back to Home",
+            fg_color=PURPLE,
+            hover_color="#5745C5",
+            height=45,
+            width=180,
+            command=lambda: show_page("Start Revision")
+        ).pack(pady=25)
+
+    display_question()
 
 # ---------------- CONFIGURATION ----------------
 
@@ -250,7 +595,7 @@ def show_revision_home():
         fg_color="#FFFFFF",
         text_color=PURPLE,
         hover_color="#E8E3FF",
-        command=handle_start_revision
+        command=show_revision_mode_popup
     ).pack(anchor="w", padx=25, pady=12)
 
     # Statistics
