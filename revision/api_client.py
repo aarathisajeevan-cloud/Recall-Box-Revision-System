@@ -110,3 +110,25 @@ def save_answer_attempt(user_id, session_id, question_id, selected_answer, time_
 
     except requests.RequestException as error:
         return {"error": str(error)}
+
+
+def complete_revision_session(session_id):
+    url = BASE_URL + "complete-session/"
+
+    data = {
+        "session_id": session_id
+    }
+
+    try:
+        response = requests.post(url, json=data, timeout=10)
+
+        if response.status_code == 200:
+            return response.json()
+
+        try:
+            return {"error": response.json()}
+        except ValueError:
+            return {"error": response.text}
+
+    except requests.RequestException as error:
+        return {"error": str(error)}

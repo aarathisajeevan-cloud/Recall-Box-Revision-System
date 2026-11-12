@@ -20,6 +20,9 @@ WHITE = "#FFFFFF"
 subjects = []
 selected_subject = None
 
+next_subject_id = 1
+next_topic_id = 1
+
 
 # ---------------- MAIN MY SUBJECTS PAGE ----------------
 
@@ -153,12 +156,15 @@ def add_subject():
                 parent=dialog
             )
             return
+        global next_subject_id
 
         subjects.append({
-            "id": len(subjects) + 1,
+            "id": next_subject_id,
             "name": subject_name,
             "topics": []
         })
+
+        next_subject_id += 1
 
         dialog.destroy()
         show_subjects_page()
@@ -257,6 +263,8 @@ def show_subject_details(subject):
 
 def add_topic(subject):
 
+    global next_topic_id
+
     dialog = ctk.CTkToplevel(main)
     dialog.title("Add Topic")
     dialog.geometry("400x230")
@@ -279,6 +287,7 @@ def add_topic(subject):
     topic_entry.pack(pady=10)
 
     def save_topic():
+        global next_topic_id
 
         topic_name = topic_entry.get().strip()
 
@@ -291,13 +300,18 @@ def add_topic(subject):
             return
 
         subject["topics"].append({
-            "id": len(subject["topics"]) + 1,
+            "id": next_topic_id,
             "name": topic_name,
             "pdf": None,
             "questions": []
         })
 
+        next_topic_id += 1
+
         dialog.destroy()
+
+        check_topic_ids()
+
         show_subject_details(subject)
 
     ctk.CTkButton(
@@ -308,6 +322,7 @@ def add_topic(subject):
         hover_color="#5544B8",
         command=save_topic
     ).pack(pady=15)
+    check_topic_ids()
 
 # ---------------- TOPIC DETAILS ----------------
 
@@ -755,3 +770,101 @@ def upload_question_bank(topic, subject):
     )
 
     show_topic_details(topic, subject)
+
+
+def show_subjects_for_practice(parent, callback):
+
+    global main
+    main = parent
+
+    clear_main()
+
+    ctk.CTkLabel(
+        main,
+        text="Choose a Subject",
+        font=("Arial", 28, "bold"),
+        text_color=TEXT
+    ).pack(anchor="w", pady=15)
+
+    if not subjects:
+        ctk.CTkLabel(
+            main,
+            text="No subjects available. Please add a subject first.",
+            font=("Arial", 16),
+            text_color=MUTED
+        ).pack(pady=50)
+        return
+
+    for subject in subjects:
+
+        ctk.CTkButton(
+            main,
+            text=subject["name"],
+            height=50,
+            fg_color=LIGHT_PURPLE,
+            hover_color="#DCD4FF",
+            text_color=PURPLE,
+            command=lambda s=subject: show_topics_for_practice(
+                s, callback
+            )
+        ).pack(fill="x", pady=8)
+
+
+def show_topics_for_practice(subject, callback):
+
+    clear_main()
+
+    ctk.CTkButton(
+        main,
+        text="← Back to Subjects",
+        fg_color="transparent",
+        text_color=PURPLE,
+        hover_color=LIGHT_PURPLE,
+        command=lambda: show_subjects_for_practice(
+            main, callback
+        )
+    ).pack(anchor="w", pady=10)
+
+    ctk.CTkLabel(
+        main,
+        text=subject["name"] + " - Choose a Topic",
+        font=("Arial", 26, "bold"),
+        text_color=TEXT
+    ).pack(anchor="w", pady=15)
+
+    if not subject["topics"]:
+        ctk.CTkLabel(
+            main,
+            text="No topics available in this subject.",
+            font=("Arial", 16),
+            text_color=MUTED
+        ).pack(pady=50)
+        return
+
+    for topic in subject["topics"]:
+
+        ctk.CTkButton(
+            main,
+            text=topic["name"],
+            height=50,
+            fg_color=LIGHT_PURPLE,
+            hover_color="#DCD4FF",
+            text_color=PURPLE,
+            command=lambda t=topic: callback(t["id"])
+        ).pack(fill="x", pady=8)
+
+
+def check_topic_ids():
+
+    print("\n--- SUBJECT AND TOPIC IDs ---")
+
+    for subject in subjects:
+
+        print("Subject:", subject["name"])
+
+        for topic in subject["topics"]:
+
+            print(
+                "Topic:", topic["name"],
+                "| Topic ID:", topic["id"]
+            )

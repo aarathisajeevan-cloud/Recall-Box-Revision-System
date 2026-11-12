@@ -1,7 +1,7 @@
 
 import customtkinter as ctk
 from tkinter import messagebox
-from api_client import start_revision_session, get_questions,save_answer_attempt
+from api_client import start_revision_session, get_questions, save_answer_attempt, complete_revision_session
 from my_subjects_ui import show_my_subjects
 import time
 
@@ -85,9 +85,24 @@ def select_revision_mode(mode, popup):
 
     popup.destroy()
 
-    # Temporary test IDs
+    if mode == "TOPIC_PRACTICE":
+        from my_subjects_ui import show_subjects_for_practice
+
+        show_subjects_for_practice(main, start_topic_practice)
+        return
+
+    # Select subject and topic for other modes
+    from my_subjects_ui import show_subjects_for_practice
+
+    show_subjects_for_practice(
+        main,
+        lambda topic_id: start_selected_revision(topic_id, mode)
+    )
+
+# Start Smart Revision and Mixed Revision
+def start_selected_revision(topic_id, mode):
+
     user_id = 1
-    topic_id = 1
 
     # Create revision session
     result = start_revision_session(
@@ -97,15 +112,55 @@ def select_revision_mode(mode, popup):
     )
 
     if "error" in result:
-        messagebox.showerror(
-            "Error",
-            str(result["error"])
-        )
+        messagebox.showerror("Error", str(result["error"]))
         return
 
     session_id = result["session"]["session_id"]
 
-    # Retrieve questions
+    # Get questions for selected topic
+    question_result = get_questions(topic_id)
+
+    if "error" in question_result:
+        messagebox.showerror("Error", str(question_result["error"]))
+        return
+
+    questions = question_result.get("questions", [])
+
+    if not questions:
+        messagebox.showinfo(
+            "No Questions",
+            "No questions available for this topic."
+        )
+        return
+
+    # Display questions
+    show_question_screen(
+        questions,
+        session_id,
+        mode
+    )
+
+    
+# Start Topic Practice
+def start_topic_practice(topic_id):
+
+    user_id = 1
+    mode = "TOPIC_PRACTICE"
+
+    # Create revision session
+    result = start_revision_session(
+        user_id,
+        topic_id,
+        mode
+    )
+
+    if "error" in result:
+        messagebox.showerror("Error", str(result["error"]))
+        return
+
+    session_id = result["session"]["session_id"]
+
+    # Retrieve questions for selected topic
     question_result = get_questions(topic_id)
 
     if "error" in question_result:
@@ -315,6 +370,14 @@ def show_question_screen(questions, session_id, mode):
 
     # FINAL RESULT
     def show_revision_result():
+        completion_result = complete_revision_session(session_id)
+
+        if "error" in completion_result:
+            messagebox.showerror(
+                "Error",
+                str(completion_result["error"])
+            )
+            return
 
         clear_main()
 
